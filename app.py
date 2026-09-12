@@ -8,7 +8,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # 1. Konfigurasi Halaman & Dark Theme Luxury
 st.set_page_config(page_title="MT5 AI Trading Generator", layout="wide")
 
-# CSS UI Premium Mewah - High Contrast Text & Gold/Emerald Accent
+# CSS UI Premium Mewah - Responsive Mobile-Friendly
 st.markdown("""
     <style>
     /* Background Utama */
@@ -29,7 +29,7 @@ st.markdown("""
         background-color: #1E293B;
         border: 1px solid #334155;
         border-radius: 10px;
-        padding: 20px;
+        padding: 16px;
         margin-bottom: 20px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
@@ -37,21 +37,21 @@ st.markdown("""
     /* Header Card */
     .card-header-gold {
         color: #FBBF24;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 800;
         border-bottom: 2px solid #334155;
         padding-bottom: 8px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         text-transform: uppercase;
     }
     
     .card-header-blue {
         color: #38BDF8;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 800;
         border-bottom: 2px solid #334155;
         padding-bottom: 8px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         text-transform: uppercase;
     }
     
@@ -60,33 +60,37 @@ st.markdown("""
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         border: 2px solid #059669;
         border-radius: 8px;
-        padding: 12px;
+        padding: 10px;
         text-align: center;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
     
     .signal-title {
         color: #34D399;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 900;
-        letter-spacing: 1.5px;
+        letter-spacing: 1px;
     }
     
     /* Text Highlight */
-    .val-text { color: #F8FAFC; font-weight: 700; font-size: 15px; }
-    .val-entry { color: #38BDF8; font-weight: 800; font-size: 18px; }
-    .val-sl { color: #F87171; font-weight: 800; font-size: 16px; }
-    .val-tp { color: #34D399; font-weight: 800; font-size: 16px; }
+    .val-text { color: #F8FAFC; font-weight: 700; font-size: 14px; }
+    .val-entry { color: #38BDF8; font-weight: 800; font-size: 16px; }
+    .val-sl { color: #F87171; font-weight: 800; font-size: 15px; }
+    .val-tp { color: #34D399; font-weight: 800; font-size: 15px; }
     
-    /* Badge RR */
+    /* Badge RR (Fixed Inline Precision) */
     .badge-rr {
+        display: inline-block;
+        white-space: nowrap;
         background-color: rgba(251, 191, 36, 0.15);
         color: #FBBF24;
         border: 1px solid rgba(251, 191, 36, 0.4);
-        padding: 2px 8px;
-        border-radius: 12px;
+        padding: 2px 6px;
+        border-radius: 6px;
         font-weight: 700;
-        font-size: 12px;
+        font-size: 11px;
+        margin-left: 4px;
+        vertical-align: middle;
     }
     
     /* Custom Button Streamlit */
@@ -131,7 +135,7 @@ def format_price(val, sym):
     elif sym in ["OIL/WTI", "VOLATILITY 80", "VOLATILITY 20"] or "JPY" in sym:
         return f"{val_num:.2f}"
     else:
-        # Standar Forex 4 Desimal (EURUSD, GBPUSD, dll)
+        # Standar Forex 4 Desimal
         return f"{val_num:.4f}"
 
 # 4. Engine Penarik Harga Real-Time Multi-Provider
@@ -220,14 +224,14 @@ if btn_generate:
             
             col_left, col_right = st.columns(2)
             
-            # Kolom Kiri: Eksekusi & TP Berjenjang
+            # Kolom Kiri: Eksekusi & TP Berjenjang (Lebar Kolom Disesuaikan)
             with col_left:
                 st.markdown(f"""
                 <div class="card-luxury">
                     <div class="card-header-gold">🎯 1. PARAMETER EKSEKUSI (ENTRY PLAN)</div>
                     <div class="signal-box-buy">
                         <div class="signal-title">BUY LIMIT / PANTULAN ZONA</div>
-                        <div style="color:#F8FAFC; font-weight:700;">{symbol} • Timeframe {timeframe}</div>
+                        <div style="color:#F8FAFC; font-weight:700; font-size:13px;">{symbol} • Timeframe {timeframe}</div>
                     </div>
                     <table style="width:100%; border-collapse:collapse; color:#F0F4F8;">
                         <tr style="border-bottom: 1px solid #334155; height: 36px;">
@@ -243,21 +247,39 @@ if btn_generate:
 
                 <div class="card-luxury">
                     <div class="card-header-gold">🏆 2. TARGET PROFIT BERJENJANG (MULTI-TP)</div>
-                    <table style="width:100%; border-collapse:collapse; color:#F0F4F8;">
-                        <tr style="border-bottom: 1px solid #334155; background: rgba(16, 185, 129, 0.08); height: 40px;">
-                            <td style="padding-left:8px;"><b>TP 1</b> <span class="badge-rr">1 : 1</span></td>
-                            <td style="text-align:center;"><span class="val-tp">{tp1_curr}</span></td>
-                            <td style="text-align:right; font-size:12px; color:#94A3B8; padding-right:8px;">Set BEP / Partial 30%</td>
+                    <table style="width:100%; border-collapse:collapse; color:#F0F4F8; font-size:13px;">
+                        <tr style="border-bottom: 1px solid #334155; background: rgba(16, 185, 129, 0.08); height: 42px;">
+                            <td style="width:32%; padding-left:6px; white-space:nowrap;">
+                                <b>TP 1</b><span class="badge-rr">1:1</span>
+                            </td>
+                            <td style="width:30%; text-align:center;">
+                                <span class="val-tp">{tp1_curr}</span>
+                            </td>
+                            <td style="width:38%; text-align:right; font-size:11px; color:#94A3B8; padding-right:6px; white-space:nowrap;">
+                                Set BEP / Partial 30%
+                            </td>
                         </tr>
-                        <tr style="border-bottom: 1px solid #334155; background: rgba(16, 185, 129, 0.15); height: 40px;">
-                            <td style="padding-left:8px;"><b>TP 2</b> <span class="badge-rr">1 : 2</span></td>
-                            <td style="text-align:center;"><span class="val-tp">{tp2_curr}</span></td>
-                            <td style="text-align:right; font-size:12px; color:#94A3B8; padding-right:8px;">Lock Profit 40%</td>
+                        <tr style="border-bottom: 1px solid #334155; background: rgba(16, 185, 129, 0.15); height: 42px;">
+                            <td style="width:32%; padding-left:6px; white-space:nowrap;">
+                                <b>TP 2</b><span class="badge-rr">1:2</span>
+                            </td>
+                            <td style="width:30%; text-align:center;">
+                                <span class="val-tp">{tp2_curr}</span>
+                            </td>
+                            <td style="width:38%; text-align:right; font-size:11px; color:#94A3B8; padding-right:6px; white-space:nowrap;">
+                                Lock Profit 40%
+                            </td>
                         </tr>
-                        <tr style="background: rgba(16, 185, 129, 0.22); height: 40px;">
-                            <td style="padding-left:8px;"><b>TP 3</b> <span class="badge-rr">1 : 3</span></td>
-                            <td style="text-align:center;"><span class="val-tp">{tp3_curr}</span></td>
-                            <td style="text-align:right; font-size:12px; color:#94A3B8; padding-right:8px;">Run Sisa ke HTF SNR</td>
+                        <tr style="background: rgba(16, 185, 129, 0.22); height: 42px;">
+                            <td style="width:32%; padding-left:6px; white-space:nowrap;">
+                                <b>TP 3</b><span class="badge-rr">1:3</span>
+                            </td>
+                            <td style="width:30%; text-align:center;">
+                                <span class="val-tp">{tp3_curr}</span>
+                            </td>
+                            <td style="width:38%; text-align:right; font-size:11px; color:#94A3B8; padding-right:6px; white-space:nowrap;">
+                                Run Sisa ke HTF SNR
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -268,7 +290,7 @@ if btn_generate:
                 st.markdown("""
                 <div class="card-luxury">
                     <div class="card-header-blue">🔍 3. ANALISIS REASONING & LOGIC VALIDASI</div>
-                    <div style="line-height: 2.0; font-size:14px; color:#E2E8F0;">
+                    <div style="line-height: 2.0; font-size:13px; color:#E2E8F0;">
                         <p style="margin:0; border-bottom:1px solid #334155;">✅ <b style="color:#38BDF8;">Multi-TF Correlation:</b> Synchronized (Trend H4 & H1 Bullish)</p>
                         <p style="margin:0; border-bottom:1px solid #334155;">✅ <b style="color:#38BDF8;">Premium/Discount:</b> Discount Area (Di bawah 50% Equilibrium)</p>
                         <p style="margin:0; border-bottom:1px solid #334155;">✅ <b style="color:#38BDF8;">Fibo Retracement:</b> Area Pantulan Golden Ratio 0.618</p>
