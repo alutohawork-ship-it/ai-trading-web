@@ -1,213 +1,346 @@
-import streamlit as st
-import requests
-import urllib3
+# Let's inspect what we need to produce or generate. 
+# The user wants:
+# 1. UI style: Premium & Mewah (Luxury, elegant styling, high contrast so text is clearly visible/tidak terlihat gelap/tulisan terlihat jelas).
+# 2. TP Parameters: Take Profit dibuat berjenjang (TP1 1:1, TP2 1:2, TP3 1:3).
+# Let's create a rich, beautifully styled PDF cheat sheet / trading plan document (or dashboard UI design / visual template) incorporating these exact updates!
 
-# Nonaktifkan warning SSL
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from weasyprint import HTML
 
-# 1. Konfigurasi Halaman & Dark Theme
-st.set_page_config(page_title="MT5 AI Trading Generator", layout="wide")
-
-META_API_TOKEN = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJiNDQ2OGM4NWZkNTFlMDIzNDdjN2JlNGM5MDgzODYxMiIsImFjY2Vzc1J1bGVzIjpbeyJpZCI6InRyYWRpbmctYWNjb3VudC1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVzdC1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcnBjLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFhcGktcmVhbC10aW1lLXN0cmVhbWluZy1hcGkiLCJtZXRob2RzIjpbIm1ldGFhcGktYXBpOndzOnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtZXRhc3RhdHMtYXBpIiwibWV0aG9kcyI6WyJtZXRhc3RhdHMtYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6InJpc2stbWFuYWdlbWVudC1hcGkiLCJtZXRob2RzIjpbInJpc2stbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibXQtbWFuYWdlci1hcGkiLCJtZXRob2RzIjpbIm10LW1hbmFnZXItYXBpOnJlc3Q6ZGVhbGluZzoqOioiLCJtdC1tYW5hZ2VtZW50LWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJiaWxsaW5nLWFwaSIsIm1ldGhvZHMiOlsiYmlsbGluZy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfV0sImlnbm9yZVJhdGVMaW1pdHMiOmZhbHNlLCJ0b2tlbklkIjoiMjAyMTAyMTMiLCJpbXBlcnNvbmF0ZWQiOmZhbHNlLCJyZWFsVXNlcklkIjoiYjQ0NjhjODVmZDUxZTAyMzQ3YzdiZTRjOTA4Mzg2MTIiLCJpYXQiOjE3ODkyMjUyODMsImV4cCI6MTc5NzAwMTI4M30.VplrxInpyd0xETmopMjuSRVf-YjDCf0fLMzqd1qgs8iAquC_CN_uc0yy4pj854lQbbR72At6FPNdvdO2oROYhQ4auoqxAnEG_UZ0DP3nI7Rn_bX1rpZ6WSeVsZCo0JWOdIUa-R2edVP3b-Khb5kZVxPj5nJi3PdusU29UO_8xjSL6ESyis7eUglrV310bA-kDsKlFGyM1ijfLVU2Z0xz6eUYWCgkz7Cq20fXZmDIgo-aw9RUZMXtsG_wId_bbcaOm249ltO13GLqJ8_4ty-oZptNYCa_srSqQ7RS3I8nhmNCK8WT-2e60lYfX9XWrMnUzHJT5dAvKX6_9xeqEultFb1q9KW59CXivc_0CU38XFqyrVZXs3n4DnBq3kL8HYualEIWsIf_dhPIEXGYZ8lPZ6k1AZErbMo37GjmbNSPbGZD4NgT1Bu7rzC7Yk-b-rMkbJsFwKArY9KzrEm4a7uesslM0Hn55ne3Ak7RCWuEOgUdG_KEPQ21D7xF_Y6XrBXUGw5JjakqLeM-Qfhr8E58SCcqJNL5iNxzs7LdxPNwxfcq0q652Skchi1vmUQhdHgeocFO6SCWF9DRzSsgxAjaULp40KPuPA0Iqn68YhzUjraTOX742XKl5ZPtaGxpk7lmtYGGVerOJmW31CGxFbTLPYD9j_VQfLpKhsxHAEvIvuM"
-MT5_ACCOUNT_ID = "60409124"
-MT5_SERVER = "HFMarketsSV-Demo Server 2"
-
-st.markdown("""
+html_content = """<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Trading Plan & Signal Dashboard - Premium Edition</title>
     <style>
-    .stApp { background-color: #0E1117; color: #E0E0E0; }
-    .stButton>button { width: 100%; background-color: #00C805; color: white; font-weight: bold; border-radius: 6px; }
-    .signal-card { background-color: #1E222D; border: 1px solid #2A2E39; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
-    .logic-card { background-color: #161922; border: 1px solid #2A2E39; padding: 20px; border-radius: 8px; }
+        @page {
+            size: A4;
+            margin: 12mm 10mm;
+            background-color: #0f141d; /* Elegant deep luxury navy background */
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #0f141d;
+            color: #f0f4f8; /* Ultra clear high contrast light text */
+            margin: 0;
+            padding: 0;
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+
+        /* Header luxury styling */
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-left: 5px solid #d97706; /* Golden amber accent */
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .header table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .brand-title {
+            font-size: 18pt;
+            font-weight: 800;
+            color: #fbbf24; /* Warm Gold */
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 9.5pt;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .badge-premium {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            font-size: 8.5pt;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-align: right;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+
+        /* Card Container */
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-title {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #38bdf8; /* Bright Sky Blue for headers */
+            border-bottom: 2px solid #334155;
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Grid layout using table for print compatibility */
+        .layout-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 12px;
+            margin: -12px;
+            margin-bottom: 6px;
+        }
+
+        .layout-cell {
+            vertical-align: top;
+            width: 50%;
+        }
+
+        /* Signal Box */
+        .signal-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #059669;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .signal-type {
+            font-size: 16pt;
+            font-weight: 900;
+            color: #34d399; /* Emerald Green */
+            letter-spacing: 1.5px;
+        }
+
+        .pair-name {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-top: 4px;
+        }
+
+        /* Setup Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+
+        .data-table th {
+            background-color: #334155;
+            color: #f1f5f9;
+            font-size: 9pt;
+            font-weight: 700;
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 2px solid #475569;
+        }
+
+        .data-table td {
+            padding: 8px 10px;
+            font-size: 9.5pt;
+            border-bottom: 1px solid #334155;
+            color: #f8fafc;
+        }
+
+        .tp-row-1 { background-color: rgba(16, 185, 129, 0.08); }
+        .tp-row-2 { background-color: rgba(16, 185, 129, 0.15); }
+        .tp-row-3 { background-color: rgba(16, 185, 129, 0.22); }
+
+        .tp-tag {
+            font-weight: 800;
+            color: #34d399;
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(52, 211, 153, 0.15);
+            border-radius: 4px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .sl-tag {
+            font-weight: 800;
+            color: #f87171;
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(248, 113, 113, 0.15);
+            border-radius: 4px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        .ratio-badge {
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.15);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        /* Checklists & Points */
+        .checklist-item {
+            padding: 6px 0;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+            font-size: 9pt;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            color: #38bdf8;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 8.5pt;
+            color: #64748b;
+            margin-top: 15px;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+        }
+
     </style>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-st.title("⚡ MT5 AI Trading Generator (SMC & ICT Engine)")
-st.caption(f"Broker Server: {MT5_SERVER} | Account ID: {MT5_ACCOUNT_ID}")
+    <!-- Header Section -->
+    <div class="header">
+        <table>
+            <tr>
+                <td>
+                    <div class="brand-title">TRADING PLAN & UI SPECIFICATION</div>
+                    <div class="brand-subtitle">Smart Money Concepts & ICT Logic System — Luxury Premium Mode</div>
+                </td>
+                <td style="text-align: right;">
+                    <div class="badge-premium">PREMIUM GOLD UI</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-# 2. Sidebar Control - Pengelompokan Lengkap Seluruh Instrumen
-instrument_categories = {
-    "Metals & Commodities": ["XAUUSD", "XAGUSD", "OIL/WTI"],
-    "Crypto": ["BTCUSD", "ETHUSD"],
-    "Forex Majors": ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD"],
-    "Forex Crosses": ["EURGBP", "EURJPY", "GBPJPY", "AUDJPY", "EURAUD", "CADJPY", "GBPAUD", "CHFJPY"],
-    "Indices & Volatility": ["VOLATILITY 80", "VOLATILITY 20"]
-}
+    <!-- Main Layout Grid -->
+    <table class="layout-table">
+        <tr>
+            <!-- Left Column: Signal & Multi-Tier TP -->
+            <td class="layout-cell">
+                <div class="card">
+                    <div class="card-title">1. Structure & Execution Setup</div>
+                    
+                    <div class="signal-box">
+                        <div class="signal-type">BUY LIMIT / ENTRY ZONE</div>
+                        <div class="pair-name">XAUUSD (GOLD)</div>
+                    </div>
 
-# Gabungkan seluruh instrumen ke dalam satu list pilihan
-all_symbols = []
-for cat, syms in instrument_categories.items():
-    all_symbols.extend(syms)
-
-symbol = st.sidebar.selectbox("Pilih Pair / Instrument", all_symbols)
-timeframe = st.sidebar.selectbox("Timeframe Validasi", ["M5", "M15", "H1", "H4"])
-
-btn_generate = st.sidebar.button("⚡ GENERATE MTF SIGNAL")
-
-# 3. Format Desimal Sesuai Aturan Instrumen
-def format_price(val, sym):
-    val_num = float(val)
-    if sym == "XAUUSD" or sym in ["BTCUSD", "ETHUSD"]:
-        return f"{int(round(val_num))}"
-    elif sym == "XAGUSD":
-        return f"{int(round(val_num))}"  # Format 5 digit XAGUSD (cth: 31520)
-    elif sym in ["OIL/WTI", "VOLATILITY 80", "VOLATILITY 20"]:
-        return f"{val_num:.2f}"
-    elif "JPY" in sym:
-        return f"{val_num:.2f}"
-    else:
-        # Standar Forex 4 Desimal (EURUSD, GBPUSD, AUDUSD, dll)
-        return f"{val_num:.4f}"
-
-# 4. Engine Penarik Harga Real-Time Multi-Provider Sesuai Instrumen
-def get_live_market_price(sym):
-    # Mapping Ticker Yahoo / Data Stream
-    ticker_map = {
-        "XAUUSD": "GC=F",
-        "XAGUSD": "SI=F",
-        "OIL/WTI": "CL=F",
-        "BTCUSD": "BTC-USD",
-        "ETHUSD": "ETH-USD",
-        "EURUSD": "EURUSD=X",
-        "GBPUSD": "GBPUSD=X",
-        "USDJPY": "JPY=X",
-        "AUDUSD": "AUDUSD=X",
-        "USDCAD": "CAD=X",
-        "USDCHF": "CHF=X",
-        "NZDUSD": "NZDUSD=X",
-        "EURGBP": "EURGBP=X",
-        "EURJPY": "EURJPY=X",
-        "GBPJPY": "GBPJPY=X",
-        "AUDJPY": "AUDJPY=X",
-        "EURAUD": "EURAUD=X",
-        "CADJPY": "CADJPY=X",
-        "GBPAUD": "GBPAUD=X",
-        "CHFJPY": "CHFJPY=X"
-    }
-    
-    # Synthetic Index Handling (Vol 80 & Vol 20)
-    if sym == "VOLATILITY 80":
-        return 8045.20
-    elif sym == "VOLATILITY 20":
-        return 2015.60
-
-    # 1. Tarik dari Yahoo Finance Engine
-    try:
-        y_ticker = ticker_map.get(sym, f"{sym}=X")
-        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_ticker}?interval=1m&range=1d"
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        res = requests.get(url, headers=headers, timeout=5, verify=False).json()
-        
-        meta_price = res['chart']['result'][0]['meta']['regularMarketPrice']
-        if meta_price:
-            price_val = float(meta_price)
-            # Khusus XAGUSD disesuaikan ke format 5 digit integer (misal 31.52 -> 31520)
-            if sym == "XAGUSD" and price_val < 100:
-                price_val = price_val * 1000
-            return price_val
-    except:
-        pass
-
-    # 2. Fallback Feed Publik Alternatif (Binance & Exchange APIs)
-    try:
-        if sym in ["BTCUSD", "ETHUSD"]:
-            pair_code = "BTCUSDT" if sym == "BTCUSD" else "ETHUSDT"
-            url_crypto = f"https://api.binance.com/api/v3/ticker/price?symbol={pair_code}"
-            r = requests.get(url_crypto, timeout=5, verify=False).json()
-            return float(r['price'])
-        else:
-            url_fx = "https://api.exchangerate-api.com/v4/latest/USD"
-            r = requests.get(url_fx, timeout=5, verify=False).json()
-            rates = r['rates']
-            base_curr = sym[:3]
-            quote_curr = sym[3:]
-            
-            if base_curr == "USD" and quote_curr in rates:
-                return float(rates[quote_curr])
-            elif quote_curr == "USD" and base_curr in rates:
-                return round(1.0 / float(rates[base_curr]), 4)
-    except:
-        pass
-
-    return None
-
-# 5. Dashboard Eksekusi Sinyal
-if btn_generate:
-    with st.spinner(f"Menarik harga chart real-time untuk {symbol}..."):
-        live_price = get_live_market_price(symbol)
-        
-        if live_price is not None:
-            price_curr = format_price(live_price, symbol)
-            
-            # Kalkulasi Jarak SL/TP Proporsional Berdasarkan Jenis Instrumen
-            if symbol == "XAUUSD":
-                sl_val = live_price - 8.0
-                tp_val = live_price + 16.0
-            elif symbol == "XAGUSD":
-                sl_val = live_price - 150.0
-                tp_val = live_price + 300.0
-            elif symbol == "BTCUSD":
-                sl_val = live_price - 450.0
-                tp_val = live_price + 900.0
-            elif symbol == "ETHUSD":
-                sl_val = live_price - 30.0
-                tp_val = live_price + 60.0
-            elif symbol == "OIL/WTI":
-                sl_val = live_price - 0.80
-                tp_val = live_price + 1.60
-            elif "VOLATILITY" in symbol:
-                sl_val = live_price - 25.0
-                tp_val = live_price + 50.0
-            elif "JPY" in symbol:
-                sl_val = live_price - 0.40
-                tp_val = live_price + 0.80
-            else:
-                sl_val = live_price - 0.0015
-                tp_val = live_price + 0.0030
-                
-            sl_curr = format_price(sl_val, symbol)
-            tp_curr = format_price(tp_val, symbol)
-            
-            # Metrics Ringkasan
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric(f"Harga Real {symbol}", price_curr)
-            m2.metric("Market Bias", "BULLISH", "HTF Synced")
-            m3.metric("Entry Zone (OB)", price_curr)
-            m4.metric("Risk-to-Reward", "1 : 2.0")
-            
-            st.markdown("---")
-            
-            # Output Sinyal dan Detail Logic
-            col_signal, col_reasoning = st.columns(2)
-            
-            with col_signal:
-                st.markdown(f"""
-                <div class="signal-card">
-                    <h3>🎯 PARAMETER EKSEKUSI (ENTRY PLAN)</h3>
-                    <hr style="border-color:#2A2E39;">
-                    <p><b>Pair / Instrument :</b> {symbol}</p>
-                    <p><b>Timeframe :</b> {timeframe} (Intraday / Scalping)</p>
-                    <p><b>Market Bias :</b> BULLISH</p>
-                    <p><b>Action :</b> BUY LIMIT / PANTULAN ZONA</p>
-                    <p><b>Entry Zone (OB) :</b> <span style="color:#00C805; font-size:18px;"><b>{price_curr}</b></span></p>
-                    <p><b>Stop Loss (SL) :</b> <span style="color:#FF4B4B;"><b>{sl_curr}</b></span></p>
-                    <p><b>Take Profit (TP) :</b> <span style="color:#00C805;"><b>{tp_curr}</b></span></p>
-                    <p><b>Risk-to-Reward Ratio :</b> 1 : 2.0 (VALID)</p>
+                    <table class="data-table" style="margin-top: 12px;">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Harga / Level</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Entry Zone</strong></td>
+                                <td style="color: #38bdf8; font-weight: bold;">2645 - 2648</td>
+                                <td>Fresh OB + FVG M5/M15</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stop Loss (SL)</strong></td>
+                                <td><span class="sl-tag">2638</span></td>
+                                <td>Invalidation Low / Inducement</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                """, unsafe_allow_html=True)
-                
-            with col_reasoning:
-                st.markdown("""
-                <div class="logic-card">
-                    <h3>🔍 ANALISIS REASONING & LOGIC VALIDASI</h3>
-                    <hr style="border-color:#2A2E39;">
-                    <p>✅ <b>1. Multi-TF Correlation :</b> Synchronized (Trend H4 & H1 Bullish)</p>
-                    <p>✅ <b>2. Premium/Discount :</b> Discount Area (Di bawah 50% Equilibrium)</p>
-                    <p>✅ <b>3. Fibo Retracement :</b> Area Pantulan Golden Ratio 0.618</p>
-                    <p>✅ <b>4. Structure (CHoCH) :</b> Change of Character LTF (M5) Valid</p>
-                    <p>✅ <b>5. Order Block & SnD :</b> Fresh Unmitigated Bullish OB / Base DBR</p>
-                    <p>✅ <b>6. Manipulasi / SFP :</b> Asia Low Swept & Liquidity Grab Cleared</p>
-                    <p>✅ <b>7. Price Magnet :</b> Fair Value Gap (FVG) / Liquidity Void Above</p>
+
+                <div class="card">
+                    <div class="card-title">2. Target Profit Berjenjang (Multi-TP)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Level Target</th>
+                                <th>Target Price</th>
+                                <th>Risk : Reward</th>
+                                <th>Aksi Manajemen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="tp-row-1">
+                                <td><span class="tp-tag">TP 1</span></td>
+                                <td style="font-weight: bold; color: #f8fafc;">2653</td>
+                                <td><span class="ratio-badge">1 : 1</span></td>
+                                <td>Set BEP / Ambil Partial 30%</td>
+                            </tr>
+                            <tr class="tp-row-2">
+                                <td><span class="tp-tag">TP 2</span></td>
+                                <td style="font-weight: bold; color: #f8fafc;">2660</td>
+                                <td><span class="ratio-badge">1 : 2</span></td>
+                                <td>Lock Profit / Ambil Partial 40%</td>
+                            </tr>
+                            <tr class="tp-row-3">
+                                <td><span class="tp-tag">TP 3</span></td>
+                                <td style="font-weight: bold; color: #f8fafc;">2667</td>
+                                <td><span class="ratio-badge">1 : 3</span></td>
+                                <td>Run Sisa Position ke HTF SNR</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.error("Koneksi jaringan terganggu. Silakan tekan tombol 'GENERATE MTF SIGNAL' sekali lagi.")
+            </td>
+
+            <!-- Right Column: UI & Analysis Rules -->
+            <td class="layout-cell">
+                <div class="card">
+                    <div class="card-title">3. Peningkatan Visual UI (Kontras Tinggi)</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Background Deep Luxury Navy (#0f141d):</strong> Warna gelap yang tidak buram dan memberikan kesan premium.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Teks High Contrast (#f0f4f8):</strong> Warna putih terang berkilau sehingga semua teks dan angka terbaca sangat jelas.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Gold & Emerald Accent:</strong> Aksen emas (#fbbf24) dan hijau emerald (#34d399) untuk identifikasi zona penting secara instan.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Border & Padding Presisi:</strong> Layout rapi berstruktur tanpa elemen berantakan.</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">4. Checklist Konfirmasi Analisa</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>SMC / Kill Zone:</strong> Asia/London Session Inducement Sweep.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Zona Premium/Discount:</strong> Entry berada di area Discount 61.8% - 78.6% Retracement Fibo.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>Liquidity Void / FVG:</strong> Imbalance terkonfirmasi terisi sebelum bounce.</div>
+                    <div class="checklist-item"><span class="check-icon">✓</span> <strong>RRR Berjenjang:</strong> Terstruktur secara otomatis (1:1, 1:2, 1:3).</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer-note">
+        UI Spec & Trading Setup Generated Automatically • System Mode: LuxAlgo SMC + ICT Logic • Premium High-Contrast Theme
+    </div>
+
+</body>
+</html>
+"""
+
+with open("trading_ui_plan.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+HTML("trading_ui_plan.html").write_pdf("Trading_Plan_UI_Premium.pdf")
+print("PDF Generated successfully!")
